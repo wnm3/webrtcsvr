@@ -70,7 +70,8 @@ Remember, you may run ./resetlogs.sh to remove the tmp_\* files and the ./logs/\
 By running the command: `python webrtcsvr.py`, you start the server. 
 
 Next, open the URL `http://localhost:8910` in a WebRTC-enabled browser (I've been using the 
-latest version of Chrome). This forms a connection to the webrtcsvr and playback should 
+latest version of Chrome, but experience the same in the latest versions of Firefox and 
+Safari). This forms a connection to the webrtcsvr and playback should 
 begin soon. The webrtc_output_audio.wav was created by using the `chrome:webrtc-internals` 
 / Create diagnostic audio recordings / Enable diagnostic audio recordings checkbox. It 
 shows the choppy-sounding output.  
