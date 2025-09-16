@@ -308,21 +308,6 @@ class webrtcsvr:
         """
         runner = None
         try:
-            cert_file = "client.crt"
-            key_file = "client.key"
-            if cert_file:
-                ssl_context = ssl.SSLContext(  # NOSONAR S4830 SSL Verification
-                    ssl.PROTOCOL_TLS_CLIENT
-                )
-                ssl_context.check_hostname = False
-                ssl_context.verify_mode = ssl.CERT_NONE  # NOSONAR
-                try:
-                    ssl_context.load_cert_chain(cert_file, key_file)
-                except Exception:
-                    ssl_context = None
-            else:
-                ssl_context = None
-
             self.app_svr = web.Application()
             self.app_svr.on_shutdown.append(
                 self.on_shutdown

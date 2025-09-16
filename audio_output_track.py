@@ -75,8 +75,8 @@ class audio_output_track(MediaStreamTrack):
                                         expected to be a 1D NumPy array.
 
         Returns:
-            np.ndarray: The resampled stereo audio data as a 2D NumPy array
-                        with shape (2, num_samples).
+            np.ndarray: The resampled stereo audio data as a 1D NumPy array
+                        with interleaved stereo data.
         """
         # Convert the mono signal to stereo by duplicating the channel
         # The output will be a 2D array
