@@ -3,7 +3,7 @@ from aiortc import MediaStreamTrack
 
 class audio_input_track(MediaStreamTrack):
     """
-    An audio stream track that converts audio received from the web browser to pass along to the prx_server
+    An audio stream track that converts audio received from the web browser to pass along to the server
     """
 
     kind = "audio"

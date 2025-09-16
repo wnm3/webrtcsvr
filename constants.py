@@ -21,10 +21,9 @@ class constants:
     SEQ = "seq"
     TTS_MAX_BUFFER_SIZE = 2000
     TYPE = "type"
-    TYPE_PRX_AUDIO_CHUNK = "prx.audio.chunk"
+    TYPE_AUDIO_CHUNK = "audio.chunk"
     WEB_RTC_PLAYBACK_AUDIO_TRACK = "playback_audio_track"
     CLIENT_WEB_RTC_CONNECTED = "client_web_rtc_connected"
     TEXT_SHUTTING_DOWN = "shutting down"
     TTS_AUDIO_SAMPLE_RATE = 24000
     WEB_RTC_AUDIO_SAMPLE_RATE = 48000
-    WEB_RTC_MIC_INPUT_STREAM = "mic_input_stream"

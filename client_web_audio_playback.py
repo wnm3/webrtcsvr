@@ -74,7 +74,7 @@ class client_web_audio_playback:
             # create a message to add to the array
             msg = queue_msg.make_user_msg(
                 {
-                    CONST.TYPE: CONST.TYPE_PRX_AUDIO_CHUNK,
+                    CONST.TYPE: CONST.TYPE_AUDIO_CHUNK,
                     CONST.AUDIO_BYTEARRAY: audio_stream,
                 }
             )
@@ -90,7 +90,7 @@ class client_web_audio_playback:
             # create a message to add to the array
             msg = queue_msg.make_user_msg(
                 {
-                    CONST.TYPE: CONST.TYPE_PRX_AUDIO_CHUNK,
+                    CONST.TYPE: CONST.TYPE_AUDIO_CHUNK,
                     CONST.AUDIO_BYTEARRAY: audio_stream,
                 }
             )
@@ -147,7 +147,7 @@ class client_web_audio_playback:
                     event = action_or_audio_chunk_msg.get_event()
 
                     event_type = event.get("type", "")
-                    if event_type == CONST.TYPE_PRX_AUDIO_CHUNK:
+                    if event_type == CONST.TYPE_AUDIO_CHUNK:
                         # the stream is inactivated when it has played all waiting output
                         # since we have new data to play, it should be activated again
                         if (

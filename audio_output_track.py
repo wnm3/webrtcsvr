@@ -227,19 +227,20 @@ class audio_output_track(MediaStreamTrack):
                     print("Beginning to play back audio.")
                     self.is_playing_back = True
 
-                ftime = frame.time if frame.time is not None and frame.time > 0 else 0
-                self.logger.info(
-                    f"Sending frame pts={frame.pts} duration={frame.duration} time={ftime} size={frame.samples} rate={frame.rate} sample_rate={frame.sample_rate}"
-                )
                 frame.sample_rate = (
                     CONST.TTS_AUDIO_SAMPLE_RATE
                     # CONST.WEB_RTC_AUDIO_SAMPLE_RATE
                 )
-
                 if DEBUG_FILES:
                     audio_array = frame.to_ndarray()[0]
                     audio_bytes = audio_array.tobytes()
                     self.sendframe_48.write(audio_bytes)
+
+                ftime = frame.time if frame.time is not None and frame.time > 0 else 0
+                self.logger.info(
+                    f"Sending frame pts={frame.pts} duration={frame.duration} time={ftime} size={frame.samples} rate={frame.rate} sample_rate={frame.sample_rate}"
+                )
+
                 break
         if frame is not None:
             # await asyncio.sleep(0.02)
@@ -255,7 +256,7 @@ class audio_output_track(MediaStreamTrack):
             frame = self.get_silence_frame()
             ftime = frame.time if frame.time is not None and frame.time > 0 else 0
             self.logger.info(
-                f"Sending silnce frame pts={frame.pts} duration={frame.duration} time={ftime} size={frame.samples} rate={frame.rate} sample_rate={frame.sample_rate}"
+                f"Sending silence frame pts={frame.pts} duration={frame.duration} time={ftime} size={frame.samples} rate={frame.rate} sample_rate={frame.sample_rate}"
             )
             return frame
 

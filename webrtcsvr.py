@@ -12,9 +12,7 @@ import traceback
 import uuid
 from aiohttp import web
 from aiortc import RTCPeerConnection, RTCRtpReceiver, RTCSessionDescription
-from aiortc.contrib.media import MediaRelay
 
-from audio_input_track import audio_input_track
 from audio_output_track import audio_output_track
 from client_web_audio_playback import client_web_audio_playback
 from shared_bytearray import shared_bytearray
@@ -32,7 +30,7 @@ class webrtcsvr:
         self.exit = False
         self.conv_data = {}
         self.logger = webrtcsvr.set_logger(__name__)
-        self.prx_config = {}
+        self.config = {}
         self.response_done_event = asyncio.Event()
         self.response_start_event = asyncio.Event()
         self.listen_end_event = asyncio.Event()
@@ -82,7 +80,7 @@ class webrtcsvr:
             self.initialize_conv_data(self.conv_id)
 
             # for comms with webrtcsvr_tts_audio_playback_thread
-            self.prx_config[CONST.AUDIO_MESSAGE_QUEUE] = queue.Queue()
+            self.config[CONST.AUDIO_MESSAGE_QUEUE] = queue.Queue()
 
             # Event to signal that playback of the current response has started
             self.audio_playback_started_event = threading.Event()
@@ -95,7 +93,7 @@ class webrtcsvr:
                 self.conv_data[self.conv_id],
                 self.audio_playback_started_event,
                 self.audio_playback_complete_event,
-                self.prx_config,
+                self.config,
                 asyncio.get_event_loop(),
                 self.logger,
             )
@@ -212,7 +210,7 @@ class webrtcsvr:
 
             pc_id = "PeerConnection(%s)" % uuid.uuid4()
             self.pc = pc
-            self.logger.info(f"{pc_id} Created for {request.remote}")
+            self.logger.info(f"{pc_id} created for remote {request.remote}")
 
             @pc.on("datachannel")
             def on_datachannel(channel):
@@ -224,24 +222,6 @@ class webrtcsvr:
                 def on_message(message):
                     if isinstance(message, str) and message.startswith("ping"):
                         channel.send("pong" + message[4:])
-                    else:
-                        print(f"Chat message: {message}")
-
-                @channel.on("open")
-                async def on_chat_open(event):
-                    self.logger.info("Chat data channel is open")
-                    msg = {
-                        "type": "chat",
-                        "speaker": "system",
-                        "message": "Please say something to initiate the conversation:\n",
-                    }
-                    self.conv_data[self.conv_id]["chat_data_channel"].send(
-                        json.dumps(msg)
-                    )
-
-                @channel.on("close")
-                async def on_chat_close():
-                    self.logger.info("Chat data channel is closed")
 
                 @channel.on("error")
                 async def on_chat_error(error):
@@ -266,7 +246,7 @@ class webrtcsvr:
 
                         # open the track to playback output
                         output_track = audio_output_track(
-                            self.prx_config,
+                            self.config,
                             self.conv_data[self.conv_id],
                             asyncio.get_event_loop(),
                             self.logger,
@@ -286,14 +266,7 @@ class webrtcsvr:
                         )
 
                         self.logger.info(
-                            f"{pc_id} prx_audio_output_track opened but not started."
-                        )
-
-                        relay = MediaRelay()
-
-                        # create the track to react to audio input
-                        self.conv_data[self.conv_id][CONST.WEB_RTC_MIC_INPUT_STREAM] = (
-                            audio_input_track(relay.subscribe(track))
+                            f"{pc_id} audio_output_track opened but not started."
                         )
 
                     @track.on("ended")
