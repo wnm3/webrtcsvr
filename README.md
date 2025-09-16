@@ -5,7 +5,7 @@ LLMs using OpenAI's API. I've tried to reduce it to a bare minimum while attempt
 to replicate most of the flows used for generating audio playback to a web browser 
 client using WebRTC as its communication.  
 
-The program writes log messages to a ./logs/webrtcsvr.log file.  
+The program writes log messages to a ./logs/webrtcsvr.log file.
 
 The program uses an artificial sleep of 20 seconds to give the playback time to be heard in the browser.  
 
@@ -19,8 +19,14 @@ transformations from the mono audio bytes read from the wav file into interleave
 stereo bytes, and the approach used with the AudioFifo to retrieve content to return 
 in the MediaStreamTrack-based track's recv call***.  
 
-I have added four data capture points, writing bytes to files at each stage of 
-transformation:  
+You can open the playback.wav in Quicktime or other media player to hear how the output should sound.  
+
+## Trace Data ##
+
+A ./logs/webrtcsvr.log file will be created, tracing various stages of execution. The first part shows the loading of the data from a wav file into events pushed through a queue and then assembled into a shared_bytearray. That shared_bytearray is used by a callback to retrieve data and form AudioFrames that are pushed through an AudioFifo to be popped and returned by the audio_output_track's recv() call.  Look for the "Sending" messages to see the frames being returned by the recv() method.
+
+In addition to the ./logs/webrtcsvr.log file, I have added four data capture points, writing bytes to files at each stage 
+of transformation:  
 
 1. The bytes read from the wav file (tmp_01_rawaudio_24_\<timestamp\>)
 2. The mono AudioFrame converted to bytes (tmp_02_monoframe_24_\<timestamp\>)
@@ -35,8 +41,7 @@ sample rates for each file, so no timestamp needs to be entered). Use the comman
 ls -ltr
 ```
 
-
-to find the last set of tmp_* files to copy their timestamp (following the last underscore (_)) to paste 
+to find the last set of tmp_\* files to copy their timestamp (following the last underscore (_)) to paste 
 into the program when prompted. No need to enter a sample rate (just press enter).  
 
 ```
@@ -58,6 +63,8 @@ Saved wav file as tmp_04_sendframe_48_1758034679.906118.wav
 webrtcsvr>
 ```
 
+Remember, you may run ./resetlogs.sh to remove the tmp_\* files and the ./logs/\*.log files.  
+
 ## Experience the Problem ##
 
 By running the command: `python webrtcsvr.py`, you start the server. 
@@ -69,11 +76,31 @@ begin soon. The webrtc_output_audio.wav was created by using the `chrome:webrtc-
 shows the choppy-sounding output.  
 
 You need to press Ctrl+C several times to kill the webrtcsvr program and then run 
-`python convert_bytes_to_wav.py` using the timestamp of the tmp_* files produced 
+`python convert_bytes_to_wav.py` using the timestamp of the tmp_\* files produced 
 in order to generate wav files from their captured bytes.
 
 There is a resetlogs.sh that will remove the log files from the ./logs directory and 
-the tmp_* files produced.
+the tmp_* files produced.  
+
+## Example Run ##
+
+Please ignore the WavFileWarning -- this is because there is a "PEAK" header in the .wav file 
+that scipy.io.wavfile.py doesn't recognize.
+
+```
+webrtcsvr>python webrtcsvr.py           
+
+Logging to /Users/wnm3/csnext/webrtcsvr/logs/webrtcsvr.log with <Logger /Users/wnm3/csnext/webrtcsvr/logs/webrtcsvr.log (INFO)>
+
+/Users/wnm3/csnext/webrtcsvr/client_web_audio_playback.py:64: WavFileWarning: Chunk (non-data) not understood, skipping it.
+  sample_rate, input_data = wavfile.read("./playback.wav")
+Please open a browser to http://localhost:8910 (or refresh the page if open) to begin the test.
+Beginning to play back audio.
+Finished playing back. Press Ctrl+C a few times to exit.
+^Caiohttp server shut down.
+shutting down
+```
+
 
 ## Program Execution Flow ##
 
