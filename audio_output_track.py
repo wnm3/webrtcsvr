@@ -8,8 +8,9 @@ import numpy as np
 from av import AudioFifo, AudioFrame
 from av.frame import Frame
 from constants import constants as CONST
+from scipy import signal
 
-DEBUG_FILES = True
+DEBUG_FILES = False
 
 
 class audio_output_track(MediaStreamTrack):
@@ -78,9 +79,16 @@ class audio_output_track(MediaStreamTrack):
             np.ndarray: The resampled stereo audio data as a 1D NumPy array
                         with interleaved stereo data.
         """
+        # Upsample the mono audio from 24000 to 48000
+        mono_audio_frame_48_float = signal.resample(
+            np.resize(mono_audio_frame, (1, mono_audio_frame.size)), 2
+        )
+        mono_audio_frame_48 = (
+            np.array(mono_audio_frame_48_float).astype(np.int16).T.ravel()
+        )
         # Convert the mono signal to stereo by duplicating the channel
         # The output will be a 2D array
-        stereo_audio_frame_2D = np.array([mono_audio_frame, mono_audio_frame])
+        stereo_audio_frame_2D = np.array([mono_audio_frame_48, mono_audio_frame_48])
         # make this interleaved stereo in a single array
         stereo_audio_frame = stereo_audio_frame_2D.T.ravel()
 
@@ -137,8 +145,8 @@ class audio_output_track(MediaStreamTrack):
                 if stereo_frames:
                     for frame in stereo_frames:
                         frame.sample_rate = (
-                            CONST.TTS_AUDIO_SAMPLE_RATE
-                            # CONST.WEB_RTC_AUDIO_SAMPLE_RATE
+                            # CONST.TTS_AUDIO_SAMPLE_RATE
+                            CONST.WEB_RTC_AUDIO_SAMPLE_RATE
                         )
                         frame.pts = self.pts
                         self.pts += frame.samples
@@ -151,8 +159,12 @@ class audio_output_track(MediaStreamTrack):
                             stereo_bytes = stereo_audio.tobytes()
                             self.stereoframe_48.write(stereo_bytes)
                         self.audio_fifo.write(frame)
+                        frame.sample_rate = (
+                            # CONST.TTS_AUDIO_SAMPLE_RATE
+                            CONST.WEB_RTC_AUDIO_SAMPLE_RATE
+                        )
             else:
-                time.sleep(0.020)
+                time.sleep(0.5)
                 if (counter % 100) == 0:
                     self.logger.info("Waiting for data to process")
                     counter = 0
@@ -198,8 +210,9 @@ class audio_output_track(MediaStreamTrack):
         )
         # Set the sample rate of the frame
         frame.sample_rate = (
-            CONST.TTS_AUDIO_SAMPLE_RATE
-        )  # CONST.WEB_RTC_AUDIO_SAMPLE_RATE
+            # CONST.TTS_AUDIO_SAMPLE_RATE
+            CONST.WEB_RTC_AUDIO_SAMPLE_RATE
+        )
         frame.pts = self.pts
         self.pts += frame.samples  # self.frames_per_buffer
         return frame
@@ -228,8 +241,8 @@ class audio_output_track(MediaStreamTrack):
                     self.is_playing_back = True
 
                 frame.sample_rate = (
-                    CONST.TTS_AUDIO_SAMPLE_RATE
-                    # CONST.WEB_RTC_AUDIO_SAMPLE_RATE
+                    # CONST.TTS_AUDIO_SAMPLE_RATE
+                    CONST.WEB_RTC_AUDIO_SAMPLE_RATE
                 )
                 if DEBUG_FILES:
                     audio_array = frame.to_ndarray()[0]
