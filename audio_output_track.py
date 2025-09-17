@@ -144,10 +144,7 @@ class audio_output_track(MediaStreamTrack):
                 stereo_frames = [stereo_frame]
                 if stereo_frames:
                     for frame in stereo_frames:
-                        frame.sample_rate = (
-                            # CONST.TTS_AUDIO_SAMPLE_RATE
-                            CONST.WEB_RTC_AUDIO_SAMPLE_RATE
-                        )
+                        frame.sample_rate = CONST.WEB_RTC_AUDIO_SAMPLE_RATE
                         frame.pts = self.pts
                         self.pts += frame.samples
                         frame.time_base = fractions.Fraction(1, frame.sample_rate)
@@ -159,10 +156,6 @@ class audio_output_track(MediaStreamTrack):
                             stereo_bytes = stereo_audio.tobytes()
                             self.stereoframe_48.write(stereo_bytes)
                         self.audio_fifo.write(frame)
-                        frame.sample_rate = (
-                            # CONST.TTS_AUDIO_SAMPLE_RATE
-                            CONST.WEB_RTC_AUDIO_SAMPLE_RATE
-                        )
             else:
                 time.sleep(0.5)
                 if (counter % 100) == 0:
@@ -240,10 +233,7 @@ class audio_output_track(MediaStreamTrack):
                     print("Beginning to play back audio.")
                     self.is_playing_back = True
 
-                frame.sample_rate = (
-                    # CONST.TTS_AUDIO_SAMPLE_RATE
-                    CONST.WEB_RTC_AUDIO_SAMPLE_RATE
-                )
+                frame.sample_rate = CONST.WEB_RTC_AUDIO_SAMPLE_RATE
                 if DEBUG_FILES:
                     audio_array = frame.to_ndarray()[0]
                     audio_bytes = audio_array.tobytes()
@@ -258,11 +248,7 @@ class audio_output_track(MediaStreamTrack):
         if frame is not None:
             # await asyncio.sleep(0.02)
             # for more dynamic based on data sent:
-            await asyncio.sleep(
-                frame.samples
-                # / CONST.TTS_AUDIO_SAMPLE_RATE
-                / CONST.WEB_RTC_AUDIO_SAMPLE_RATE
-            )
+            await asyncio.sleep(frame.samples / CONST.WEB_RTC_AUDIO_SAMPLE_RATE)
             return frame
         else:
             await asyncio.sleep(0.02)
